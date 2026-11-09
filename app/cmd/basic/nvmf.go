@@ -218,6 +218,11 @@ func NvmfSubsystemAddNsCmd() *cli.Command {
 				Usage:    "Namespace globally unique identifier",
 				Required: false,
 			},
+			&cli.StringFlag{
+				Name:     "ptpl-file",
+				Usage:    "File path to persist the NVMe reservation state (Persist Through Power Loss)",
+				Required: false,
+			},
 		},
 		Usage: "add a bdev as a namespace for subsystem of nvmf: ns-add <SUBSYSTEM NQN>",
 		Action: func(ctx context.Context, c *cli.Command) error {
@@ -236,7 +241,7 @@ func nvmfSubsystemAddNs(c *cli.Command) error {
 		return err
 	}
 
-	added, err := spdkCli.NvmfSubsystemAddNs(c.String("nqn"), c.String("bdev-name"), c.String("nguid"))
+	added, err := spdkCli.NvmfSubsystemAddNsWithPtplFile(c.String("nqn"), c.String("bdev-name"), c.String("nguid"), "", c.String("ptpl-file"))
 	if err != nil {
 		return err
 	}

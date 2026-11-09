@@ -1316,12 +1316,23 @@ func (c *Client) NvmfSubsystemAddNs(nqn, bdevName, nguid string) (nsid uint32, e
 // NvmfSubsystemAddNsWithUUID adds a namespace with an optional stable UUID for
 // NVMe multipath aggregation.
 func (c *Client) NvmfSubsystemAddNsWithUUID(nqn, bdevName, nguid, nsUUID string) (nsid uint32, err error) {
+	return c.NvmfSubsystemAddNsWithPtplFile(nqn, bdevName, nguid, nsUUID, "")
+}
+
+// NvmfSubsystemAddNsWithPtplFile adds a namespace with an optional stable UUID
+// and an optional ptpl file.
+//
+//	"ptplFile": Optional. File path for NVMe reservation Persist Through Power
+//	  Loss. SPDK stores the reservation state in this file and restores it when
+//	  the namespace is added again. Empty disables persistence.
+func (c *Client) NvmfSubsystemAddNsWithPtplFile(nqn, bdevName, nguid, nsUUID, ptplFile string) (nsid uint32, err error) {
 	req := spdktypes.NvmfSubsystemAddNsRequest{
 		Nqn: nqn,
 		Namespace: spdktypes.NvmfSubsystemNamespace{
 			BdevName: bdevName,
 			Nguid:    nguid,
 			UUID:     nsUUID,
+			PtplFile: ptplFile,
 		},
 	}
 

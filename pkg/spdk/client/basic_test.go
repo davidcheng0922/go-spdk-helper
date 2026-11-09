@@ -349,6 +349,49 @@ func TestNvmfSubsystemAddNsUsesDefaultANAGroup(t *testing.T) {
 	)
 }
 
+func TestNvmfSubsystemAddNsWithPtplFile(t *testing.T) {
+	tests := []struct {
+		name     string
+		ptplFile string
+	}{
+		{name: "ptpl file set", ptplFile: "/metadata/ptpl/vol.json"},
+		{name: "ptpl file omitted when empty", ptplFile: ""},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			runJSONRPCRequestTest(t,
+				func(cli *Client) error {
+					_, err := cli.NvmfSubsystemAddNsWithPtplFile("nqn.test", "bdev0", "nguid0", "", test.ptplFile)
+					return err
+				},
+				func(t *testing.T, method string, params map[string]interface{}) {
+					t.Helper()
+					if method != "nvmf_subsystem_add_ns" {
+						t.Fatalf("unexpected method %s", method)
+					}
+
+					namespace, ok := params["namespace"].(map[string]interface{})
+					if !ok {
+						t.Fatalf("unexpected namespace payload %T", params["namespace"])
+					}
+					got, exists := namespace["ptpl_file"]
+					if test.ptplFile == "" {
+						if exists {
+							t.Fatalf("expected add_ns to omit ptpl_file, got %#v", got)
+						}
+						return
+					}
+					if got != test.ptplFile {
+						t.Fatalf("got ptpl_file %#v, want %q", got, test.ptplFile)
+					}
+				},
+				float64(1),
+			)
+		})
+	}
+}
+
 func TestNvmfSubsystemListenerSetANAStateDefaultsANAGroup(t *testing.T) {
 	runJSONRPCRequestTest(t,
 		func(cli *Client) error {
