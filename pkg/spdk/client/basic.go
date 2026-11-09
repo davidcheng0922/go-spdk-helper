@@ -1525,6 +1525,29 @@ func (c *Client) NvmfSubsystemGetListeners(nqn, tgtName string) (listenerList []
 	return listenerList, json.Unmarshal(cmdOutput, &listenerList)
 }
 
+// NvmfSubsystemGetControllers lists all controllers, i.e., the connected hosts, of the specified NVMe-oF target subsystem.
+//
+//	"nqn": Required. Subsystem NQN.
+//
+//	"tgtName": Optional. Parent NVMe-oF target name.
+//
+// Note:
+//
+//  1. Trying to get controllers of a non-existing subsystem will return error: {"code": -32602, "message": "Invalid parameters"}
+func (c *Client) NvmfSubsystemGetControllers(nqn, tgtName string) (controllerList []spdktypes.NvmfSubsystemController, err error) {
+	req := spdktypes.NvmfSubsystemGetControllersRequest{
+		Nqn:     nqn,
+		TgtName: tgtName,
+	}
+
+	cmdOutput, err := c.jsonCli.SendCommand("nvmf_subsystem_get_controllers", req)
+	if err != nil {
+		return nil, err
+	}
+
+	return controllerList, json.Unmarshal(cmdOutput, &controllerList)
+}
+
 // LogSetFlag sets the log flag.
 //
 // "flag": Required. Log flag to set.

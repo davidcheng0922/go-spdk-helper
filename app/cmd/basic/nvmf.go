@@ -28,6 +28,7 @@ func NvmfCmd() *cli.Command {
 			NvmfSubsystemAddListenerCmd(),
 			NvmfSubsystemRemoveListenerCmd(),
 			NvmfSubsystemGetListenersCmd(),
+			NvmfSubsystemGetControllersCmd(),
 		},
 	}
 }
@@ -475,4 +476,32 @@ func nvmfSubsystemGetListeners(c *cli.Command) error {
 	}
 
 	return util.PrintObject(listenerList)
+}
+
+func NvmfSubsystemGetControllersCmd() *cli.Command {
+	return &cli.Command{
+		Name:  "controller-get",
+		Usage: "list all controllers for a subsystem of nvmf: controller-get <SUBSYSTEM NQN>",
+		Action: func(ctx context.Context, c *cli.Command) error {
+			if err := nvmfSubsystemGetControllers(c); err != nil {
+				logrus.WithError(err).Fatalf("Failed to run get nvmf subsystem controllers command")
+				return err
+			}
+			return nil
+		},
+	}
+}
+
+func nvmfSubsystemGetControllers(c *cli.Command) error {
+	spdkCli, err := client.NewClient(context.Background())
+	if err != nil {
+		return err
+	}
+
+	controllerList, err := spdkCli.NvmfSubsystemGetControllers(c.Args().First(), "")
+	if err != nil {
+		return err
+	}
+
+	return util.PrintObject(controllerList)
 }
